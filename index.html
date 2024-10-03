@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+<meta name="description" content="Our mission here is simple: we want to inspire the next generation, help them grow and achieve excellence!" />
+<meta content="width=device-width, initial-scale=1" name="viewport" />
+<link rel="canonical" href="https://www.kedst.ac.uk/" />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<script type="text/javascript" src="https://www.kedst.ac.uk/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<title>King Edward VI College, Stourbridge</title>
+<script src='https://www.gstatic.com/charts/loader.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.1/rgbcolor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.1/canvg.min.js"></script>
+
+
+</head>
+<body data-rsssl=1 class="home page-template-default page page-id-18 tribe-no-js page-template-kedst-by-sd kingeds-mainsite">
+<div class="container-fluid search-box">
+<style>
+#appForm{
+	font-family: "Hanken Grotesk", sans-serif;
+	font-size:14;
+	Padding:10px 20px 10px 40px;
+}
+
+span.Question{
+		width:100%; 
+		padding-top:5px; 
+		padding-bottom:5px;
+		font-family: "Hanken Grotesk", sans-serif;
+		font-size:12pt;
+	}
+	
+input[type="button"]{
+	background-color:#264a6c;
+	color:#ffffff;
+	height:3em;
+	font-size:12pt;
+}
+
+
+@media screen and (max-width:600px) {
+	span.Question{
+		font-family: "Hanken Grotesk", sans-serif;
+		font-size:10pt;
+	}
+	
+	input[type="radio"] {
+	  -ms-transform: scale(1); /* IE 9 */
+	  -webkit-transform: scale(1); /* Chrome, Safari, Opera */
+	  transform: scale(1);
+	  margin:0px;
+	}
+	input[type="button"]{
+		height:4em;
+		font-size:10pt;
+	}
+	#appForm{
+		Padding:10px 5px 10px 10px
+	}
+	
+}
+</style>
+<div class="flexible-content-blocks">
+<div id='appForm'>
+	<div style='background-color:#264a6c; color:#ffffff; padding:5px'>
+		<h2>Study Habits Survey</h2>
+	</div>
+	<div>	
+	<form id='calculator'>
+		<p>Please answer the following questions, the ratings you give will help identify your study habits</p>
+	</form>
+	<div id="chart-area"></div>
+	<div id='result' style="padding-left:20px"><h3>What it means</h3></div>
+	</div>
+	<script>
+	const form = document.querySelector('#calculator');  
+	   form.addEventListener('submit', function(event) {  
+	   event.preventDefault(); // Prevents the default form submission behavior  
+	   makeGraph(questions)
+	}); 
+	jQuery("#result").hide();
+	imgData=''	
+	
+	class Question{
+		constructor(id,question,framework, skill){
+			this.id = id;
+			this.question = question;
+			this.framework = framework;
+			this.skill = skill;
+		}
+		
+		add_to_page(){
+			this.html = "<div id='Question"+this.id+"' ><span class='Question'>"+this.question+"</span><br/><span class ='Question'> &nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=9 required/> 9&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=8 required/> 8&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=7 required/> 7&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=6 required/> 6&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=5 required/> 5&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=4 required/> 4&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=3 required/> 3&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=2 required/> 2&nbsp;&nbsp;"
+			+"<input type='radio' name='r_"+this.id+"' value=1 required/> 1&nbsp;&nbsp;"
+			+"</span>"
+			jQuery('#calculator').append(this.html);
+		}
+	}
+	
+	function setGraphUp(graphData, title, subtitle){
+	google.charts.load('upcoming', {'packages': ['vegachart']}).then(loadCharts);
+
+      function loadCharts() {
+		
+        addChart(title, graphData, "#B82E2E", subtitle);
+      };
+
+      function addChart(title, data, color,subtitle) {
+        const dataTable = new google.visualization.DataTable();
+        dataTable.addColumn({type: 'string', 'id': 'key'});
+        dataTable.addColumn({type: 'number', 'id': 'value'});
+        dataTable.addColumn({type: 'string', 'id': 'category'});
+        dataTable.addRows(data);
+
+        const options = {
+          'vega': {
+            "$schema": "https://vega.github.io/schema/vega/v5.json",
+            "width": 610,
+            "height": 500,
+            "autosize": "none",
+            "title": {
+              "text": title,
+              "anchor": "middle",
+              "fontSize": 14,
+              "dy": -8,
+              "dx": {"signal": "-width/4"},
+              "subtitle": subtitle
+            },
+            "signals": [
+              {"name": "radius", "update": "200"} /*Scales the graph - set to 200*/
+            ],
+            "data": [
+              {
+                "name": "table",
+                "source": "datatable",
+              },
+              {
+                "name": "keys",
+                "source": "table",
+                "transform": [
+                  {
+                    "type": "aggregate",
+                    "groupby": ["key"]
+                  }
+                ]
+              }
+            ],
+            "scales": [
+              {
+                "name": "angular",
+                "type": "point",
+                "range": {"signal": "[-PI, PI]"},
+                "padding": 0.5,
+                "domain": {"data": "table", "field": "key"}
+              },
+              {
+                "name": "radial",
+                "type": "linear",
+                "range": {"signal": "[0, radius]"},
+                "zero": true,
+                "nice": false,
+                "domain": [0,1],
+              }
+            ],
+            "encode": {
+              "enter": {
+                "x": {"signal": "width/2"},
+                "y": {"signal": "height/2 + 20"}
+              }
+            },
+            "marks": [
+              {
+                "type": "group",
+                "name": "categories",
+                "zindex": 1,
+                "from": {
+                  "facet": {"data": "table", "name": "facet", "groupby": ["category"]}
+                },
+                "marks": [
+                  {
+                    "type": "line",
+                    "name": "category-line",
+                    "from": {"data": "facet"},
+                    "encode": {
+                      "enter": {
+                        "interpolate": {"value": "linear-closed"},
+                        "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
+                        "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
+                        "stroke": {"value": color},
+                        "strokeWidth": {"value": 1.5},
+                        "fill": {"value": color},
+                        "fillOpacity": {"value": 0.1}
+                      }
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "name": "value-text",
+                    "from": {"data": "category-line"},
+                    "encode": {
+                      "enter": {
+                        "x": {"signal": "datum.x + 14 * cos(scale('angular', datum.datum.key))"},
+                        "y": {"signal": "datum.y + 14 * sin(scale('angular', datum.datum.key))"},
+                        "text": {"signal": "format(datum.datum.value,'.1%')"},
+                        "opacity": {"signal": "datum.datum.value > 0.01 ? 1 : 0"},
+                        "align": {"value": "center"},
+                        "baseline": {"value": "middle"},
+                        "fontWeight": {"value": "bold"},
+                        "fill": {"value": color},
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "rule",
+                "name": "radial-grid",
+                "from": {"data": "keys"},
+                "zindex": 0,
+                "encode": {
+                  "enter": {
+                    "x": {"value": 0},
+                    "y": {"value": 0},
+                    "x2": {"signal": "radius * cos(scale('angular', datum.key))"},
+                    "y2": {"signal": "radius * sin(scale('angular', datum.key))"},
+                    "stroke": {"value": "lightgray"},
+                    "strokeWidth": {"value": 1}
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "name": "key-label",
+                "from": {"data": "keys"},
+                "zindex": 1,
+                "encode": {
+                  "enter": {
+                    "x": {"signal": "(radius + 60) * cos(scale('angular', datum.key))"},
+                    "y": [
+                      {
+                        "test": "sin(scale('angular', datum.key)) > 0",
+                        "signal": "5 + (radius + 11) * sin(scale('angular', datum.key))"
+                      },
+                      {
+                        "test": "sin(scale('angular', datum.key)) < 0",
+                        "signal": "-5 + (radius + 11) * sin(scale('angular', datum.key))"
+                      },
+                      {
+                        "signal": "(radius + 11) * sin(scale('angular', datum.key))"
+                      }
+                    ],
+                    "text": {"field": "key"},
+                    "align":
+                      {
+                        "value": "center"
+                      },
+                    "baseline": [
+                      {
+                        "test": "scale('angular', datum.key) > 0", "value": "top"
+                      },
+                      {
+                        "test": "scale('angular', datum.key) == 0", "value": "middle"
+                      },
+                      {
+                        "value": "bottom"
+                      }
+                    ],
+                    "fill": {"value": "black"},
+                    "fontSize": {"value": 18}
+                  }
+                }
+              },
+              {
+                "type": "line",
+                "name": "twenty-line",
+                "from": {"data": "keys"},
+                "encode": {
+                  "enter": {
+                    "interpolate": {"value": "linear-closed"},
+                    "x": {"signal": "0.2 * radius * cos(scale('angular', datum.key))"},
+                    "y": {"signal": "0.2 * radius * sin(scale('angular', datum.key))"},
+                    "stroke": {"value": "lightgray"},
+                    "strokeWidth": {"value": 1}
+                  }
+                }
+              },
+              {
+                "type": "line",
+                "name": "fourty-line",
+                "from": {"data": "keys"},
+                "encode": {
+                  "enter": {
+                    "interpolate": {"value": "linear-closed"},
+                    "x": {"signal": "0.4 * radius * cos(scale('angular', datum.key))"},
+                    "y": {"signal": "0.4 * radius * sin(scale('angular', datum.key))"},
+                    "stroke": {"value": "lightgray"},
+                    "strokeWidth": {"value": 1}
+                  }
+                }
+              },
+              {
+                "type": "line",
+                "name": "sixty-line",
+                "from": {"data": "keys"},
+                "encode": {
+                  "enter": {
+                    "interpolate": {"value": "linear-closed"},
+                    "x": {"signal": "0.6 * radius * cos(scale('angular', datum.key))"},
+                    "y": {"signal": "0.6 * radius * sin(scale('angular', datum.key))"},
+                    "stroke": {"value": "lightgray"},
+                    "strokeWidth": {"value": 1}
+                  }
+                }
+              },
+              {
+                "type": "line",
+                "name": "eighty-line",
+                "from": {"data": "keys"},
+                "encode": {
+                  "enter": {
+                    "interpolate": {"value": "linear-closed"},
+                    "x": {"signal": "0.8 * radius * cos(scale('angular', datum.key))"},
+                    "y": {"signal": "0.8 * radius * sin(scale('angular', datum.key))"},
+                    "stroke": {"value": "lightgray"},
+                    "strokeWidth": {"value": 1}
+                  }
+                }
+              },
+              {
+                "type": "line",
+                "name": "outer-line",
+                "from": {"data": "radial-grid"},
+                "encode": {
+                  "enter": {
+                    "interpolate": {"value": "linear-closed"},
+                    "x": {"field": "x2"},
+                    "y": {"field": "y2"},
+                    "stroke": {"value": "lightgray"},
+                    "strokeWidth": {"value": 1}
+                  }
+                }
+              }
+            ]
+          }
+        };
+
+        const elem = document.createElement("div");
+        elem.setAttribute("style", "display: inline-block; width: 300px; height: 250px; padding: 20px;");
+
+        chart = new google.visualization.VegaChart(elem);
+        chart.draw(dataTable, options);
+        document.getElementById("chart-area").appendChild(elem);
+		document.getElementById("chart-area").appendChild(document.createElement("br"));
+		return false;
+      }
+	
+	}
+	function shuffle(array){
+		for (let i = array.length - 1; i  > 0; i--){
+			let j = Math.floor(Math.random() * (i+1));
+			[array[i],array[j]] = [array[j],array[i]];
+		}
+	}
+	
+	function add_average_text(){
+		jQuery('#result').append("<p>You have shown a solid balance across all areas, demonstrating that you are an all-rounder with a versatile set of skills and qualities. <br/>\
+				This balance suggests you can adapt well to different situations, making you a valuable asset in diverse contexts, from teamwork to independent tasks. <br/>\
+				While you have a good foundation in many areas, there's always room to challenge yourself further. <br/>\
+				Consider identifying a few specific skills or traits you'd like to strengthen, and set small, achievable goals to push yourself out of your comfort zone. <br/>\
+				By doing so, you can transform this balance into an even greater strength and achieve your full potential.</p>")
+		
+		
+	}
+	
+	function add_summary_text_low(category){
+		if (category == "ED"){
+			jQuery('#result').append("<p>It seems there is an opportunity to improve your focus and commitment towards your goals. <br/>\
+			Try setting smaller, achievable targets and gradually building up.<br/>\
+			Establishing a routine, using productivity tools, and rewarding yourself for sticking to your plan could help you enhance your effort and discipline over time.</p>")
+		}
+		else if (category == "K"){
+			jQuery('#result').append("<p>It appears there might be an opportunity for you to work on building stronger connections with others. <br/>\
+			Consider actively engaging in conversations, showing empathy, and finding common ground with those around you. <br/>\
+			Practising active listening and participating in group activities could help strengthen your social bonds and foster a sense of community.</p>")
+		}
+		else if (category == "SK"){
+			jQuery('#result').append("<p>There may be an opportunity for you to explore and understand yourself better.<br/>\
+			Consider engaging in activities such as journaling, mindfulness, or seeking feedback from those you trust.<br/>\
+			Reflecting on your actions and decisions can help you gain a clearer picture of your personal values and motivations, enabling you to make more informed choices.</p>")
+		}
+		else if (category == "C"){
+			jQuery('#result').append("<p>It seems there is room to enhance your communication skills.<br/>\
+			Focus on practising active listening, being mindful of body language, and seeking feedback from others.<br/>\
+			Try participating in public speaking, writing exercises, or joining discussion groups to build your confidence and improve your ability to convey your thoughts effectively.</p>")
+		}
+		else if (category == "CT"){
+			jQuery('#result').append("<p>There may be an opportunity to strengthen your critical thinking skills.<br/>\
+			Consider questioning assumptions, seeking out diverse viewpoints, and analysing information in depth before forming a conclusion.<br/>\
+			Engaging in activities like puzzles, strategic games, or discussions on complex topics could help enhance your analytical abilities.</p>")
+		}
+		else if (category == "L"){
+			jQuery('#result').append("<p>There might be a chance to improve your leadership abilities.<br/>\
+			Start by taking on smaller leadership roles in group settings, observing how effective leaders manage teams, and asking for feedback.<br/>\
+			Building self-confidence and improving your communication skills can also help you become a more effective leader.</p>")
+		}
+		else if (category == "O"){
+			jQuery('#result').append("<p>It seems like you could benefit from refining your organisational skills.<br/>\
+			Consider creating to-do lists, using digital planning tools, and setting specific deadlines for your tasks.<br/>\
+			Breaking down larger tasks into smaller, manageable steps can also help you stay on track and manage your time more effectively.</p>")
+		}
+		else if (category == "PS"){
+			jQuery('#result').append("<p>There may be a need to work on your problem-solving skills.<br/>\
+			Practise breaking down problems into smaller parts, exploring various solutions, and considering the consequences of each choice.<br/>\
+			Engaging in brainstorming sessions and seeking advice from others can also help you think more creatively when solving problems.</p>")
+		}
+		else if (category == "T"){
+			jQuery('#result').append("<p>There might be an opportunity to improve your teamwork skills.<br/>\
+			Focus on listening actively, being open to others' ideas, and offering support when needed.<br/>\
+			Engaging in group activities, sports, or team-based projects can help you practise and enhance your ability to work effectively with others.</p>")
+		}
+		else if (category == "SM"){
+			jQuery('#result').append("<p>It seems like you could work on improving your self-management skills.<br/>\
+			Consider setting clear, achievable goals and monitoring your progress regularly.<br/>\
+			Techniques like time-blocking, using reminders, and practising self-care can help you maintain focus and build better habits over time.</p>")
+		}
+		else if (category == "R"){
+			jQuery('#result').append("<p>It seems there's an opportunity to build your resilience.<br/>\
+			Try focusing on developing a growth mindset by viewing setbacks as learning opportunities.<br/>\
+			Practising mindfulness, setting realistic goals, and reaching out for support when needed can help you become more resilient over time.</p>")
+		}
+	}
+	
+	
+	function add_summary_text_high(category){
+		if (category == "ED"){
+			jQuery('#result').append("<p>You demonstrate a remarkable capacity for dedication and self-discipline, often going above and beyond to achieve your goals.<br/>\
+			Your consistency and perseverance make you a reliable person who can be trusted to follow through.<br/>\
+			Leverage this strength to continue setting ambitious goals and inspiring others to stay committed to their objectives.</p>")
+		}
+		else if (category == "K"){
+			jQuery('#result').append("<p>You excel at forming deep, meaningful relationships and have a natural ability to connect with others.<br/>\
+			Your empathy and genuine care make you a supportive friend, team player, or leader who brings people together.<br/>\
+			Use this strength to create collaborative environments where everyone feels valued and motivated.</p>")
+		}
+		else if (category == "SK"){
+			jQuery('#result').append("<p>You possess a deep understanding of yourself, your strengths, and areas for growth.<br/>\
+			This self-awareness allows you to make decisions that align with your values and long-term goals, creating a sense of fulfilment and purpose.<br/>\
+			Continue using this insight to navigate challenges effectively and build upon your personal and professional development.</p>")
+		}
+		else if (category == "C"){
+			jQuery('#result').append("<p>You have a natural talent for expressing yourself clearly and engaging others through your words.<br/>\
+			Whether in writing or speaking, you can convey complex ideas in a way that is easily understood and compelling.<br/>\
+			Use this skill to advocate for causes you care about, share knowledge, and build strong networks.</p>")
+		}
+		else if (category == "CT"){
+			jQuery('#result').append("<p>You are skilled at analysing situations and thinking critically to make well-informed decisions.<br/>\
+			Your ability to assess problems from multiple perspectives and challenge assumptions is a valuable asset.<br/>\
+			Leverage this skill to tackle complex challenges, innovate solutions, and help others refine their thought processes.</p>")
+		}
+		else if (category == "L"){
+			jQuery('#result').append("<p>You have a natural ability to lead and inspire others towards a common goal.<br/>\
+			Your confidence, vision, and ability to motivate people make you an effective leader.<br/>\
+			Continue using these skills to create inclusive environments, foster teamwork, and guide others to reach their full potential.</p>")
+		}
+		else if (category == "O"){
+			jQuery('#result').append("<p>You have a knack for organisation and can effectively plan, prioritise, and manage tasks to achieve your goals efficiently.<br/>\
+			This skill makes you reliable in both individual and team settings, as you ensure that projects run smoothly.<br/>\
+			Use this talent to streamline processes and help others stay focused and productive.</p>")
+		}
+		else if (category == "PS"){
+			jQuery('#result').append("<p>You have a strong ability to solve problems creatively and effectively, even in challenging situations.<br/>\
+			Your resourcefulness and determination make you a go-to person when issues arise.<br/>\
+			Continue applying this skill to innovate and find new approaches, whether in your personal projects or within a team.</p>")
+		}
+		else if (category == "T"){
+			jQuery('#result').append("<p>You are an excellent team player, skilled at collaborating and working towards common goals.<br/>\
+			Your ability to communicate openly, respect different perspectives, and build trust makes you a valuable asset to any group.<br/>\
+			Continue using this skill to foster positive team dynamics and achieve shared success.</p>")
+		}
+		else if (category == "SM"){
+			jQuery('#result').append("<p>You are highly skilled at managing yourself, maintaining focus, and staying motivated even in the face of distractions or challenges.<br/>\
+			Your ability to regulate your emotions and behaviours makes you dependable and effective in achieving your goals.<br/>\
+			Continue leveraging this skill to enhance your productivity and well-being.</p>")
+		}
+		else if (category == "R"){
+			jQuery('#result').append("<p>You demonstrate a remarkable ability to bounce back from setbacks and maintain a positive outlook.<br/>\
+			Your resilience helps you navigate challenges with grace and persistence, inspiring those around you.<br/>\
+			Use this strength to support others through difficult times and continue growing through adversity.</p>")
+		}
+	
+	}
+	
+	function add_summary(percentage,category){
+		if ((percentage*100) <= 45.0){
+			add_summary_text_low(category)
+			return true
+		}
+		else if ((percentage*100) >= 65.0){
+			add_summary_text_high(category)
+			return true
+		}
+		
+		return false
+	}
+	
+	function makeGraph(questions){
+		document.getElementById("chart-area").innerHTML = ""; /*prevent double submission showing*/
+		
+		total = 0
+		EffortandDisciplineScore = 0
+		EffortandDisciplineTotal = 0
+		kinshipScore = 0
+		kinshipTotal = 0
+		SelfKnowledgeScore = 0
+		SelfKnowledgeTotal = 0
+		
+		CommunicationScore = 0
+		CommunicationTotal = 0
+		CriticalThinkingScore = 0
+		CriticalThinkingTotal = 0
+		LeadershipScore = 0
+		LeadershipTotal = 0
+		OrganisationScore = 0
+		OrganisationTotal = 0
+		ProblemSolvingScore = 0
+		ProblemSolvingTotal = 0
+		TeamworkScore = 0
+		TeamworkTotal = 0
+		SelfManagementScore = 0
+		SelfManagementTotal = 0
+		ResilienceScore = 0
+		ResilienceTotal = 0
+		
+		for (var i = 0; i<questions.length; i++ ){
+				q = eval(questions[i])
+				jQuery('input[type=radio][name=r_'+q.id+']:checked').each(function(){
+				x = Number(jQuery(this).val())
+				total += x
+				if (q.framework == "Kinship"){
+					kinshipScore += x
+					kinshipTotal += 9
+				}
+				if (q.framework == "Effort and Discipline"){
+					EffortandDisciplineScore += x
+					EffortandDisciplineTotal += 9
+				}
+				if (q.framework == "Self Knowledge"){
+					SelfKnowledgeScore += x
+					SelfKnowledgeTotal += 9
+				}
+				
+				if (q.skill == "Communication"){
+					CommunicationScore += x
+					CommunicationTotal += 9
+				}
+				
+				if (q.skill == "Critical Thinking"){
+					CriticalThinkingScore += x
+					CriticalThinkingTotal += 9
+				}
+				
+				if (q.skill == "Leadership"){
+					LeadershipScore += x
+					LeadershipTotal += 9
+				}
+				if (q.skill == "Organisation"){
+					OrganisationScore += x
+					OrganisationTotal += 9
+				}
+				
+				if (q.skill == "Problem Solving"){
+					ProblemSolvingScore += x
+					ProblemSolvingTotal += 9
+				}
+				
+				if (q.skill == "Teamwork"){
+					TeamworkScore += x
+					TeamworkTotal += 9
+				}
+				
+				if (q.skill == "Self-Management"){
+					SelfManagementScore += x
+					SelfManagementTotal += 9
+				}
+				
+				if (q.skill == "Resilience"){
+					ResilienceScore += x
+					ResilienceTotal += 9
+				}
+					
+			});
+		}
+		EffortandDesciplinePercent = EffortandDisciplineScore/EffortandDisciplineTotal
+		KinshipPercent = kinshipScore/kinshipTotal
+		SelfKnowledgePercent = SelfKnowledgeScore/SelfKnowledgeTotal
+		
+		CommunicationPercent = CommunicationScore/CommunicationTotal
+		CriticalThinkingPercent = CriticalThinkingScore/CriticalThinkingTotal
+		LeadershipPercent = LeadershipScore/LeadershipTotal
+		OrganisationPercent = OrganisationScore/OrganisationTotal
+		ProblemSolvingPercent = ProblemSolvingScore/ProblemSolvingTotal
+		TeamworkPercent = TeamworkScore/TeamworkTotal
+		SelfManagementPercent = SelfManagementScore/SelfManagementTotal
+		ResiliencePercent = ResilienceScore/ResilienceTotal
+		
+		graphData = [
+			["Effort and Discipline",EffortandDesciplinePercent,""],
+			["Kinship",KinshipPercent,""],
+			["Self Knowledge",SelfKnowledgePercent,""]
+		];
+		
+		Transferableskills = [
+			["Communication",CommunicationPercent,""],
+			["Critical Thinking",CriticalThinkingPercent,""],
+			["Leadership",LeadershipPercent,""],
+			["Organisation",OrganisationPercent,""],
+			["Problem Solving",ProblemSolvingPercent,""],
+			["Teamwork",TeamworkPercent,""],
+			["Self-Management",SelfManagementPercent,""],
+			["Resilience",ResiliencePercent,""]
+		];
+	  
+	  setGraphUp(graphData,"Your KEDS Habits","Study habits as measured by you");
+	  setGraphUp(Transferableskills, "Your Transferable Skills","Transferable skills as measured by you");
+	  	  
+	  if((add_summary(EffortandDesciplinePercent,"ED") && add_summary(KinshipPercent,"K") && add_summary(SelfKnowledgePercent,"SK") && add_summary(CommunicationPercent,"C") && add_summary(CriticalThinkingPercent,"CT") 
+	  && add_summary(LeadershipPercent,"L") && add_summary(OrganisationPercent,"O") && add_summary(ProblemSolvingPercent,"PS") && add_summary(TeamworkPercent,"T") && add_summary(SelfManagementPercent,"SM") &&
+	  add_summary(ResiliencePercent,"R"))==false) {
+		add_average_text()
+	  }
+		
+		jQuery('#result').append("<h3>Don't forget to take a screenshot of your result.</h3>")
+		
+			jQuery('#graphBtn').hide()
+			jQuery('#calculator').hide()
+			jQuery("#result").show();
+	}
+	
+	function populate_questions(){
+		q1 = new Question("1","I respect rules","Effort and Discipline","Teamwork");
+		q2 = new Question("2","I have developed a broad and rich vocabulary","Effort and Discipline","Communication");
+		q3 = new Question("3","I am level-headed and don’t get carried away with things","Effort and Discipline","Self-Management");
+		q4 = new Question("4","I can focus and study for long periods without getting distracted","Effort and Discipline","Self-Management");
+		q5 = new Question("5","I get my things ready for college or work the night before","Effort and Discipline","Organisation");
+		q6 = new Question("6","I plan out my independent study time","Effort and Discipline","Organisation");
+		q7 = new Question("7","I accept mistakes as part of learning","Effort and Discipline","Resilience");
+		q8 = new Question("8","I don't give up easily – I'll keep going even when there are difficulties","Effort and Discipline","Resilience");
+		q9 = new Question("9","I ask questions in class because I want to fully understand","Effort and Discipline","Critical Thinking");
+		q10 = new Question("10","I have high standards in my work","Effort and Discipline","Self-Management");
+		q11 = new Question("11","I get homework done soon after it is set rather than waiting until the last minute","Effort and Discipline","Organisation");
+		q12 = new Question("12","I carefully consider feedback and use it to improve what I do","Effort and Discipline","Critical Thinking");
+		q13 = new Question("13","I am very rarely late for a lesson or an appointment","Effort and Discipline","Organisation");
+		q14 = new Question("14","I keep all my notes and study materials well-organised","Effort and Discipline","Organisation");
+		q15 = new Question("15","I keep track of all my tasks and prioritize them effectively","Effort and Discipline","Organisation");
+		q16 = new Question("16","I enjoy breaking down complex problems into manageable parts","Effort and Discipline","Problem Solving");
+		
+		q17 = new Question("17","I am good at building on points made by others","Kinship","Communication");
+		q18 = new Question("18","I am good at making friends","Kinship","Teamwork");
+		q19 = new Question("19","I like to do well in the eyes of my teachers and parents or guardians","Kinship","Self-Management");
+		q20 = new Question("20","I contribute well to class discussions","Kinship","Communication");
+		q21 = new Question("21","I can make others laugh and have fun","Kinship","Teamwork");
+		q22 = new Question("22","I am good at working in a team","Kinship","Teamwork");
+		q23 = new Question("23","I don't take offence quickly","Kinship","Resilience");
+		q24 = new Question("24","I keep myself and others safe as a top priority","Kinship","Leadership");
+		q25 = new Question("25","I am comfortable with taking the lead ","Kinship","Leadership");
+		q26 = new Question("26","I am happy to help others out","Kinship","Teamwork");
+		q27 = new Question("27","I will talk to trusted adults (like college staff) if I'm worried about something","Kinship","Communication");
+		q28 = new Question("28","I very rarely fall out with anybody","Kinship","Teamwork");
+		q29 = new Question("29","I am good at resolving arguments and disputes in friendship groups","Kinship","Problem Solving");
+		q30 = new Question("30","I will step in and challenge if I see something that's not right","Kinship","Leadership");
+		q31 = new Question("31","I express my thoughts clearly and listen actively to others","Kinship","Communication");
+		q32 = new Question("32","I motivate others to work towards a common goal","Kinship","Leadership");
+		
+		q33 = new Question("33","I am enthusiastic about learning new things","Self Knowledge","Problem Solving");
+		q34 = new Question("34","I am good at being independent - I can follow my own plans","Self Knowledge","Self-Management");
+		q35 = new Question("35","I enjoy thinking about complex ideas","Self Knowledge","Critical Thinking");
+		q36 = new Question("36","I am good at spotting a potential business idea","Self Knowledge","Problem Solving");
+		q37 = new Question("37","I  cope well when things don't go to plan","Self Knowledge","Resilience");
+		q38 = new Question("38","I am creative and imaginative","Self Knowledge","Problem Solving");
+		q39 = new Question("39","I know what support I need and I'm happy to ask for it","Self Knowledge","Communication");
+		q40 = new Question("40","I am not naïve - I know that people don’t always have good intentions","Self Knowledge","Critical Thinking");
+		q41 = new Question("41","I can deal with exam stress well","Self Knowledge","Resilience");
+		q42 = new Question("42","I don't mind if I sometimes look silly - I can laugh at myself","Self Knowledge","Resilience");
+		q43 = new Question("43","My well developed radar for trouble has kept me safe","Self Knowledge","Critical Thinking");
+		q44 = new Question("44","I can stand up for myself when I need to","Self Knowledge","Leadership");
+		q45 = new Question("45","I am good at relaxing","Self Knowledge","Self-Management");
+		q46 = new Question("46","It's hard to manipulate me","Self Knowledge","Leadership");
+		q47 = new Question("47","I enjoy finding new ways to solve problems and improve situations","Self Knowledge","Problem Solving");
+		q48 = new Question("48","I evaluate different perspectives before making a decision","Self Knowledge","Critical Thinking");		
+		
+		questions = ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12","q13","q14","q15","q16","q17","q18","q19","q20","q21","q22","q23","q24","q25",
+		"q26","q27","q28","q29","q30","q31","q32","q33","q34","q35","q36","q37","q38","q39","q40","q41","q42","q43","q44","q45","q46","q47","q48"]
+		shuffle(questions);
+		questions.forEach(q => eval(q).add_to_page())
+		return questions
+	}
+	
+	questions = populate_questions();
+	jQuery('#calculator').append("<input id='graphBtn' type='submit' style='margin-left:1%' value='Show me my graph!' />");
+	</script>
+	
+</div>
+</div>
+</body>
+</html>
